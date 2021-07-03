@@ -7,24 +7,23 @@
     <body>
         <form action="/login" method="post">
             Id : <input type="text" name="id"><br/>
-            Password : <input type="password" name="passwd"><br/>
-            submit <input type="submit">
+            Password : <input type="password" name="password"><br/>
         </form>
         
-        <button class="ajaxsend">ajaxsend</button>
+        <button class="ajaxsend">login</button>
         
         <div class="result"></div>
         
         <script>
             document.querySelector('.ajaxsend').addEventListener('click', function(){
-                var inputdata = document.forms[0].elements[0].value
-                //line8번에 <form>에 elem[0]은 email 그리고 그것에 값
-                sendAjax('http://127.0.0.1:3000/ajax_login', inputdata);
+                var id = document.getElementsByName('id')[0].value;
+                var password = document.getElementsByName('password')[0].value;
+                sendAjax('http://127.0.0.1:3000/login', {'id' : id, 'password' : password}
+                );
                 //sendAjax라는 함수를 만들고 거기다가 form에 있는 data를 받는다.
             })
             
             function sendAjax(url, data){
-                var data = {'email' : data}; //data를 json형태로 저장
                 data = JSON.stringify(data); //json형태를 string형태로 변경
                 
                 var xhr = new XMLHttpRequest(); //xml요청
@@ -36,9 +35,9 @@
                     var result = JSON.parse(xhr.responseText); 
                     //JSON문자열의 구문을 분석하여 result에 저장
                     var resultDiv = document.querySelector(".result");
-                    if(result.result !== "ok") resultDiv.innerHTML = "your email not found"
-                    else resultDiv.innerHTML = result.name;
-                    //div result에 innerHTML을 result에 email을 출력
+                    if(result.id) resultDiv.innerHTML = "welcome !!" + result.id + "!!";
+                    else resultDiv.innerHTML = result;
+                    //div result에 innerHTML을 result에 id를 출력
                 });
             }
         </script>

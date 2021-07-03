@@ -5,6 +5,7 @@ var path = require('path');
 var main = require('./main');
 var nickname = require('./nickname');
 var join = require('./join');
+var login = require('./login');
 
 //url routing
 router.get('/', function(req, res){
@@ -15,5 +16,6 @@ router.get('/', function(req, res){
 router.use('/main', main);
 router.use('/nickname', nickname);
 router.use('/join', join);
+router.use('/login', login)
 
 module.exports = router;
