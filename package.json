@@ -14,7 +14,7 @@
     "export": "^0.1.337",
     "express": "^4.17.1",
     "mysql": "^2.18.1",
-    "nodemon": "^2.0.7",
+    "nodemon": "^2.0.9",
     "util": "^0.12.4"
   },
   "devDependencies": {
