@@ -2,20 +2,32 @@
 <html>
     <head>
         <meta charset="utf-8">
-        <title>login form</title>
+        <title>Login</title>
+        <link rel="stylesheet" href="/css/ui.css">
     </head>
     <body>
-        <form action="/login" method="post">
-            Id : <input type="text" name="id"><br/>
-            Password : <input type="password" name="password"><br/>
-        </form>
+        <h1>Login</h1>
+        <div class="formWrap">
+            <form action="" method="post">
+                <div class="inputWrap">
+                    <div class="email">
+                		<span> ID </span> <input type="text" name="id"><br/>
+                    </div>
+                    <div class="password">
+                        <span> Password </span> <input type="password" name="password"><br/>
+                    </div>
+                </div>
+                <input class="sendbtn" type="submit">
+    	   </form>
+        </div>
+
+    	<div class="result"></div>
+
         
-        <button class="ajaxsend">login</button>
-        
-        <div class="result"></div>
         
         <script>
-            document.querySelector('.ajaxsend').addEventListener('click', function(){
+            document.querySelector('.sendbtn').addEventListener('click', function(e){
+                e.preventDefault();
                 var id = document.getElementsByName('id')[0].value;
                 var password = document.getElementsByName('password')[0].value;
                 sendAjax('http://127.0.0.1:3000/login', {'id' : id, 'password' : password}
@@ -35,8 +47,15 @@
                     var result = JSON.parse(xhr.responseText); 
                     //JSON문자열의 구문을 분석하여 result에 저장
                     var resultDiv = document.querySelector(".result");
-                    if(result.id) resultDiv.innerHTML = "welcome !!" + result.id + "!!";
-                    else resultDiv.innerHTML = result;
+
+                    if(result.id) {
+                        //resultDiv.innerHTML = "welcome !!" + result.id + "!!";
+                        window.location.href='/main'
+                    }
+                    else if (xhr.status === 401) resultDiv.innerHTML = result + "<div class='signup'><a href='/join'>Sign up</a></div>";
+                    else {
+                        resultDiv.innerHTML = result;
+                    }
                     //div result에 innerHTML을 result에 id를 출력
                 });
             }
