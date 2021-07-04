@@ -56,7 +56,7 @@ passport.use('local-login', new LocalStrategy({
                 var query = connection.query('select * from userlogin where password=?',[password], function(err, rows){
                     if(err) return done(err)
                     if(rows.length&&rows[0].NICKNAME){
-                        return done(null, {'check':'ok', 'code':200, 'id':id, 'password':password, 'nickname':'ture'})
+                        return done(null, {'check':'ok', 'code':200, 'id':id, 'password':password, 'nickname':true})
                         //세션에 담을 정보를 넘겨준다. user에게 담아서 serialize에게 전달
                     } else if(rows.length){
                         return done(null, false, {'check':'not_ok', 'code':304, 'message' : '닉네임 정보가 없습니다.'})
