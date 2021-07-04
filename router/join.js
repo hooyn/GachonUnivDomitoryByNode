@@ -39,6 +39,7 @@ passport.deserializeUser(function(id, done){
 passport.use('local-join', new LocalStrategy({
     usernameField: 'id',
     passwordField: 'password',
+    nicknameField: 'nickname',
     passReqToCallback: true
 }, function(req, id, password, done){
     var query = connection.query('select * from userlogin where id=?', [id], function(err, rows){
@@ -51,7 +52,8 @@ passport.use('local-join', new LocalStrategy({
             console.log('password not true');
             return done(null, false, {message : 'your password is not true'})
         } else {
-            var sql = {id:id, password:password};
+            console.log('create user');
+            var sql = {id:id, password:password, nickname:nicknameField};
             var query = connection.query('insert into userlogin set ?', sql, function(err, rows){
                 if(err) throw err
                 return done(null, {'id':id, 'password':password});
