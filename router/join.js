@@ -38,10 +38,9 @@ passport.deserializeUser(function(id, done){
 
 passport.use('local-join', new LocalStrategy({
     usernameField: 'id',
-    passwordField: 'password',
     nicknameField: 'nickname',
     passReqToCallback: true
-}, function(req, id, password, done){
+}, function(req, id, nickname, done){
     var query = connection.query('select * from userlogin where id=?', [id], function(err, rows){
         if(err) return done(err);
         
@@ -53,21 +52,29 @@ passport.use('local-join', new LocalStrategy({
             return done(null, false, {message : 'your password is not true'})
         } else {
             console.log('create user');
-            var sql = {id:id, password:password, nickname:nicknameField};
-            var query = connection.query('insert into userlogin set ?', sql, function(err, rows){
+            var query = connection.query('update userlogin set nickname=? where id=?', [nickname, id], function(err, rows){
                 if(err) throw err
-                return done(null, {'id':id, 'password':password});
+                return done(null, {'nickname':nickname, 'id':id});
                 //세션에 담을 정보를 넘겨준다. user에게 담아서 serialize에게 전달
             })
         }
     })
 }));
 
-router.post('/', passport.authenticate('local-join',{
-    successRedirect: '/main', //성공
-    failureRedirect: '/join', //실패
-    failureFlash: true
-})); //router에서 local-join strategy로 가서 console.log()부분에서 계속 돌아감 그래서 line30 function부분에서 아이디가 있는지 없는지 판별하는 코드가 있어야 한다.
+router.post('/',  function(req, res, next){
+    passport.authenticate('local-join', function(err, user, info){
+        if(err) res.status(500).json(err);
+        if(!user) return res.status(401).json(info);
+
+        req.logIn(user, function(err) {
+            //serialize에서 처리가 돼서 내려온다. user에 정보를 담아서 온다.
+            if(err) { return next(err); }
+            return res.json(user); //json으로 응답을 준다.
+        });
+    })(req,res,next); //authenticate가 반환하는 값들을 추가적으로 처리해줘야 한다.
+    //그래야 위에 //이부분으로 갈 수 있다.
+});
+ //router에서 local-join strategy로 가서 console.log()부분에서 계속 돌아감 그래서 line30 function부분에서 아이디가 있는지 없는지 판별하는 코드가 있어야 한다.
 
 //router.post('/', function(req, res){
 //    var body = req.body;
