@@ -41,15 +41,15 @@ passport.use('local-join', new LocalStrategy({
     nicknameField: 'nickname',
     passReqToCallback: true
 }, function(req, id, nickname, done){
-    var query = connection.query('select * from userlogin where id=?', [id], function(err, rows){
+    var query = connection.query('select * from userlogin where nickname=?', [nickname], function(err, rows){
         if(err) return done(err);
         
         if(rows.length){ //이미 아이디가 있다면 이미 있다는 메세지와 함께 err
-            console.log('existed user');
-            return done(null, false, {message : 'your id is already used'})
-        } else if(password.length<6) {
-            console.log('password not true');
-            return done(null, false, {message : 'your password is not true'})
+            console.log('existed nickname');
+            return done(null, false, {message : 'your nickname is already used'})
+        } else if(nickname<6) {
+            console.log('nickname length false');
+            return done(null, false, {message : 'your nickname is false'})
         } else {
             console.log('create user');
             var query = connection.query('update userlogin set nickname=? where id=?', [nickname, id], function(err, rows){
