@@ -14,7 +14,7 @@ var connection = mysql.createConnection({
 });
 connection.connect();
 
-router.post('/', function(req, res){
+router.post('/articlelist', function(req, res){
     var responseData = {};
     connection.query('ALTER TABLE articlelist AUTO_INCREMENT=1;', function(err, rows){
         if(err) throw err;
@@ -31,6 +31,24 @@ router.post('/', function(req, res){
     })
     
 });
+router.post('/user', function(req, res){
+    var responseData = {};
+    connection.query('ALTER TABLE user  AUTO_INCREMENT=1;', function(err, rows){
+        if(err) throw err;
+    })
+    connection.query('SET @COUNT = 0;', function(err, rows){
+        if(err) throw err;
+    })
+    connection.query('UPDATE user SET no = @COUNT:=@COUNT+1;', function(err, rows){
+        if(err) throw err;
+        responseData.check = true;
+        responseData.code = 200;
+        responseData.message = '유저 데이터베이스 번호가 정렬되었습니다.';
+        return res.json(responseData);
+    })
+    
+});
+
 
 module.exports = router;
 

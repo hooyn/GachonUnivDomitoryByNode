@@ -4,7 +4,7 @@ var router = express.Router();
 var path = require('path');
 var main = require('./main');
 var nicknameCheck = require('./nicknameCheck');
-var join = require('./join');
+var nicknameSet= require('./nicknameSet');
 var login = require('./login');
 var logout = require('./logout')
 var calmenu = require('./calmenu')
@@ -13,18 +13,19 @@ var modifyArticle = require('./modifyArticle')
 var deleteArticle = require('./deleteArticle')
 var search = require('./search')
 var home = require('./home')
-var sortArticlelist = require('./sortArticlelist')
+var sort = require('./sort')
+
 
 
 
 //url routing
 router.get('/', function(req, res){
-    console.log('indexjs/path loaded');
+	console.log('index load');
 });
 
 router.use('/main', main);
 router.use('/nicknameCheck', nicknameCheck);
-router.use('/join', join);
+router.use('/nicknameSet', nicknameSet);
 router.use('/login', login)
 router.use('/logout', logout)
 router.use('/calmenu', calmenu)
@@ -33,6 +34,6 @@ router.use('/modifyArticle', modifyArticle)
 router.use('/deleteArticle', deleteArticle)
 router.use('/search', search)
 router.use('/home', home)
-router.use('/sortArticlelist', sortArticlelist)
+router.use('/sort', sort)
 
 module.exports = router;

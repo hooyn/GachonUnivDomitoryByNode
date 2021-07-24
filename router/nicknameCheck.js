@@ -18,7 +18,7 @@ connection.connect();
 
 router.post('/', function(req, res){
     var responseData = {};
-    var nickname = req.query.nickname;
+    var nickname = req.body.nickname;
     console.log(nickname);
  
     var query = connection.query('select nickname from user where nickname=?',[nickname], function(err, rows){
