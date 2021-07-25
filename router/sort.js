@@ -10,12 +10,14 @@ var connection = mysql.createConnection({
     port : 3306,
     user : 'root',
     password : 'owner9809~',
-    database : 'teamsb'
+    database : 'teamsb',
+    dateStrings : 'date'
 });
 connection.connect();
 
 router.post('/articlelist', function(req, res){
     var responseData = {};
+    var count;
     connection.query('ALTER TABLE articlelist AUTO_INCREMENT=1;', function(err, rows){
         if(err) throw err;
     })
@@ -24,11 +26,19 @@ router.post('/articlelist', function(req, res){
     })
     connection.query('UPDATE articlelist SET no = @COUNT:=@COUNT+1;', function(err, rows){
         if(err) throw err;
-        responseData.check = true;
-        responseData.code = 200;
-        responseData.message = '글의 아이디가 정렬되었습니다.';
-        return res.json(responseData);
     })
+    connection.query('select no from articlelist;', function(err, rows){
+        if(err) throw err;
+        count=rows.length;
+        connection.query('ALTER TABLE articlelist AUTO_INCREMENT=?', [count], function(err, rows){
+            if(err) throw err;
+            responseData.check = true;
+            responseData.code = 200;
+            responseData.message = '글의 아이디가 정렬되었습니다.';
+            return res.json(responseData);
+        })
+    })
+    
     
 });
 router.post('/user', function(req, res){

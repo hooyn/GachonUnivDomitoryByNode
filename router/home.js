@@ -11,7 +11,8 @@ var connection = mysql.createConnection({
     port : 3306,
     user : 'root',
     password : 'owner9809~',
-    database : 'teamsb'
+    database : 'teamsb',
+    dateStrings : 'date'
 });
 connection.connect();
 
@@ -25,7 +26,21 @@ router.get('/all', function(req, res){
                     var count = rows.length;
                     var conArr = [];
                     for(var i=(page-1)*10;i<page*10&&i<count;i++){
-                        conArr.push(rows[i])
+                        var hash = [];
+                        if(rows[i].hash_1){
+                            hash.push(rows[i].hash_1)
+                            if(rows[i].hash_2){
+                                hash.push(rows[i].hash_2)
+                                if(rows[i].hash_3){
+                                    hash.push(rows[i].hash_3)
+                                }
+                            }
+                        }
+                        rows[i].hash = hash;
+                        delete rows[i].hash_1;
+                        delete rows[i].hash_2;
+                        delete rows[i].hash_3;
+                        conArr.push(rows[i]);
                     }
                     responseData.check = true;
                     responseData.code = 200;
@@ -45,7 +60,21 @@ router.get('/recentPost', function(req, res){
                     var count = rows.length;
                     var conArr = [];
                     for(var i=0; i<5 ; i++){
-                        conArr.push(rows[i])
+                        var hash = [];
+                        if(rows[i].hash_1){
+                            hash.push(rows[i].hash_1)
+                            if(rows[i].hash_2){
+                                hash.push(rows[i].hash_2)
+                                if(rows[i].hash_3){
+                                    hash.push(rows[i].hash_3)
+                                }
+                            }
+                        }
+                        rows[i].hash = hash;
+                        delete rows[i].hash_1;
+                        delete rows[i].hash_2;
+                        delete rows[i].hash_3;
+                        conArr.push(rows[i]);
                     }
                     responseData.check = true;
                     responseData.code = 200;
@@ -61,13 +90,27 @@ router.get('/delivery', function(req, res){
     var category = req.query.category;
     var page = req.query.page;
 
-    var query = connection.query('select * from articlelist where category="delivery"', function(err, rows){
+    var query = connection.query('select * from articlelist where category="delivery" order by timeStamp desc', function(err, rows){
         if(err) throw err;
         if(rows){
             var count = rows.length;
             var conArr = [];
             for(var i=(page-1)*10;i<page*10&&i<count;i++){
-                conArr.push(rows[i])
+                var hash = [];
+                if(rows[i].hash_1){
+                    hash.push(rows[i].hash_1)
+                    if(rows[i].hash_2){
+                        hash.push(rows[i].hash_2)
+                        if(rows[i].hash_3){
+                            hash.push(rows[i].hash_3)
+                        }
+                    }
+                }
+                rows[i].hash = hash;
+                delete rows[i].hash_1;
+                delete rows[i].hash_2;
+                delete rows[i].hash_3;
+                conArr.push(rows[i]);
             }
             responseData.check = true;
             responseData.code = 200;
@@ -84,13 +127,27 @@ router.get('/taxi', function(req, res){
     var category = req.query.category;
     var page = req.query.page;
 
-    var query = connection.query('select * from articlelist where category="taxi"', function(err, rows){
+    var query = connection.query('select * from articlelist where category="taxi" order by timeStamp desc', function(err, rows){
         if(err) throw err;
         if(rows){
             var count = rows.length;
             var conArr = [];
             for(var i=(page-1)*10;i<page*10&&i<count;i++){
-                conArr.push(rows[i])
+                var hash = [];
+                if(rows[i].hash_1){
+                    hash.push(rows[i].hash_1)
+                    if(rows[i].hash_2){
+                        hash.push(rows[i].hash_2)
+                        if(rows[i].hash_3){
+                            hash.push(rows[i].hash_3)
+                        }
+                    }
+                }
+                rows[i].hash = hash;
+                delete rows[i].hash_1;
+                delete rows[i].hash_2;
+                delete rows[i].hash_3;
+                conArr.push(rows[i]);
             }
             responseData.check = true;
             responseData.code = 200;
@@ -106,13 +163,27 @@ router.get('/laundry', function(req, res){
     var category = req.query.category;
     var page = req.query.page;
 
-    var query = connection.query('select * from articlelist where category="laundry"', function(err, rows){
+    var query = connection.query('select * from articlelist where category="laundry" order by timeStamp desc', function(err, rows){
         if(err) throw err;
         if(rows){
             var count = rows.length;
             var conArr = [];
             for(var i=(page-1)*10;i<page*10&&i<count;i++){
-                conArr.push(rows[i])
+                var hash = [];
+                if(rows[i].hash_1){
+                    hash.push(rows[i].hash_1)
+                    if(rows[i].hash_2){
+                        hash.push(rows[i].hash_2)
+                        if(rows[i].hash_3){
+                            hash.push(rows[i].hash_3)
+                        }
+                    }
+                }
+                rows[i].hash = hash;
+                delete rows[i].hash_1;
+                delete rows[i].hash_2;
+                delete rows[i].hash_3;
+                conArr.push(rows[i]);
             }
             responseData.check = true;
             responseData.code = 200;
@@ -128,13 +199,27 @@ router.get('/parcel', function(req, res){
     var category = req.query.category;
     var page = req.query.page;
 
-    var query = connection.query('select * from articlelist where category="parcel"', function(err, rows){
+    var query = connection.query('select * from articlelist where category="parcel" order by timeStamp desc', function(err, rows){
         if(err) throw err;
         if(rows){
             var count = rows.length;
             var conArr = [];
             for(var i=(page-1)*10;i<page*10&&i<count;i++){
-                conArr.push(rows[i])
+                var hash = [];
+                if(rows[i].hash_1){
+                    hash.push(rows[i].hash_1)
+                    if(rows[i].hash_2){
+                        hash.push(rows[i].hash_2)
+                        if(rows[i].hash_3){
+                            hash.push(rows[i].hash_3)
+                        }
+                    }
+                }
+                rows[i].hash = hash;
+                delete rows[i].hash_1;
+                delete rows[i].hash_2;
+                delete rows[i].hash_3;
+                conArr.push(rows[i]);
             }
             responseData.check = true;
             responseData.code = 200;

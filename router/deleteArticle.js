@@ -11,15 +11,16 @@ var connection = mysql.createConnection({
     port : 3306,
     user : 'root',
     password : 'owner9809~',
-    database : 'teamsb'
+    database : 'teamsb',
+    dateStrings : 'date'
 });
 connection.connect();
 
 
 router.post('/', function(req, res){
     var responseData = {};
-    var curUser = req.query.curUser;
-    var no = req.query.no;
+    var curUser = req.body.curUser;
+    var no = req.body.no;
 
     var query=connection.query('select * from articlelist where no=?', [no], function(err, rows){
         if(err) throw err;

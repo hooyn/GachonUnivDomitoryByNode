@@ -14,6 +14,8 @@ var deleteArticle = require('./deleteArticle')
 var search = require('./search')
 var home = require('./home')
 var sort = require('./sort')
+var getUser = require('./getUser')
+var accessArticle = require('./accessArticle')
 
 
 
@@ -35,5 +37,7 @@ router.use('/deleteArticle', deleteArticle)
 router.use('/search', search)
 router.use('/home', home)
 router.use('/sort', sort)
+router.use('/getUser', getUser)
+router.use('/accessArticle', accessArticle)
 
 module.exports = router;

@@ -18,11 +18,12 @@ connection.connect();
 
 router.post('/', function(req, res){
     var responseData = {};
-    var curUser = req.query.curUser;
-    var no = req.query.no;
-    var title = req.query.title;
-    var category = req.query.category;
-    var text = req.query.text;
+    var curUser = req.body.curUser; //현재 기기에 있는 id
+    var no = req.body.no;
+    var title = req.body.title;
+    var category = req.body.category;
+    var text = req.body.text;
+    var hash = req.body.hash;
 
   
     if(!title){
@@ -52,15 +53,44 @@ router.post('/', function(req, res){
     else{
         var query=connection.query('select * from articlelist where no=?', [no], function(err, rows){
             if(err) throw err;
-            if(rows[0].writeUser==curUser){
-                    var sql = 'update articlelist set title=?, category=?, text=? where no=?';
-                    var query = connection.query(sql, [title, category, text, no], function(err, rows){
-                    if(err) throw err;
-                    responseData.check = true;
-                    responseData.code = 200;
-                    responseData.message = '글이 수정되었습니다.';
-                    return res.json(responseData);
-                })
+            if(rows[0].userId==curUser){
+                if(!hash[0]&&!hash[1]&&!hash[2]){
+                    var query = connection.query('update articlelist set title=?, category=?, text=? where no=?', [title, category, text, no], function(err, rows){
+                        if(err) throw err;
+                        responseData.check = true;
+                        responseData.code = 200;
+                        responseData.message = '글이 수정되었습니다.';
+                        return res.json(responseData);
+                    })
+                }
+            
+                else if(hash[0]&&!hash[1]&&!hash[2]){
+                    var query = connection.query('update articlelist set title=?, category=?, text=?, hash_1=? where no=?', [title, category, text, hash[0], no], function(err, rows){
+                        if(err) throw err;
+                        responseData.check = true;
+                        responseData.code = 200;
+                        responseData.message = '글이 수정되었습니다.';
+                        return res.json(responseData);
+                    })
+                }
+                else if(hash[0]&&hash[1]&&!hash[2]){
+                    var query = connection.query('update articlelist set title=?, category=?, text=?, hash_1=?, hash_2=? where no=?', [title, category, text, hash[0], hash[1], no], function(err, rows){
+                        if(err) throw err;
+                        responseData.check = true;
+                        responseData.code = 200;
+                        responseData.message = '글이 수정되었습니다.';
+                        return res.json(responseData);
+                    })
+                }
+                else{
+                    var query = connection.query('update articlelist set title=?, category=?, text=?, hash_1=?, hash_2=?, hash_3=? where no=?', [title, category, text, hash[0], hash[1], hash[2], no], function(err, rows){
+                        if(err) throw err;
+                        responseData.check = true;
+                        responseData.code = 200;
+                        responseData.message = '글이 수정되었습니다.';
+                        return res.json(responseData);
+                    })
+                }
             }
             else{
                 responseData.check = false;
