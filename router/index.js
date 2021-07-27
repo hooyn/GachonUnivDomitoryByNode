@@ -22,6 +22,7 @@ var report = require('./report')
 var reportlist = require('./reportlist')
 var reply = require('./reply')
 var check_replymod = require('./check_replymod')
+var loginRequest = require('./loginRequest')
 
 //url routing
 router.get('/', function(req, res){
@@ -48,5 +49,6 @@ router.use('/report', report)
 router.use('/reportlist', reportlist)
 router.use('/reply', reply)
 router.use('/check_replymod', check_replymod)
+router.use('/loginRequest', loginRequest)
 
 module.exports = router;

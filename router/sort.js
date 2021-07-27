@@ -33,12 +33,10 @@ router.post('/articlelist', function(req, res){
             if(err) throw err;
             responseData.check = true;
             responseData.code = 200;
-            responseData.message = '글의 아이디가 정렬되었습니다.';
+            responseData.message = '글의 고유 아이디 번호가 정렬되었습니다.';
             return res.json(responseData);
         })
     })
-    
-    
 });
 router.post('/user', function(req, res){
     var responseData = {};
@@ -50,14 +48,19 @@ router.post('/user', function(req, res){
     })
     connection.query('UPDATE user SET no = @COUNT:=@COUNT+1;', function(err, rows){
         if(err) throw err;
-        responseData.check = true;
-        responseData.code = 200;
-        responseData.message = '유저 데이터베이스 번호가 정렬되었습니다.';
-        return res.json(responseData);
+        })
+    connection.query('select no from user;', function(err, rows){
+        if(err) throw err;
+        count=rows.length;
+        connection.query('ALTER TABLE user AUTO_INCREMENT=?', [count], function(err, rows){
+            if(err) throw err;
+            responseData.check = true;
+            responseData.code = 200;
+            responseData.message = '유저 고유 아이디 번호가 정렬되었습니다.';
+            return res.json(responseData);
+        })
     })
-    
 });
 
 
 module.exports = router;
-

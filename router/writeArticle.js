@@ -24,10 +24,12 @@ router.post('/', function(req, res){
     var userNickname;
     var text = req.body.text;
     var hash = req.body.hash;
+    console.log("load write");
 
     var query = connection.query('select * from user where id=?', [userId], function(err, rows){
         if(err) throw err;
         if(rows.length){
+            console.log("write" + userId);
             userNickname = rows[0].nickname;
             var sql = 'insert into articlelist (title, category, userId, userNickname, text, hash_1, hash_2, hash_3) values (?, ?, ?, ?, ?, ?, ?, ?)';
             if(!userNickname){
@@ -55,7 +57,7 @@ router.post('/', function(req, res){
                 responseData.message = '글의 내용이 없습니다.';
                 return res.json(responseData);
             }
-            else if(!hash[0]&&!hash[1]&&!hash[2]){
+            else if(!hash){
                 var query = connection.query('insert into articlelist (title, category, userId, userNickname, text) values (?, ?, ?, ?, ?)', [title, category, userId, userNickname, text], function(err, rows){
                     if(err) throw err;
                     responseData.check = true;

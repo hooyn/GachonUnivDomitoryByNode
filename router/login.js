@@ -1,11 +1,13 @@
+const { json } = require('body-parser');
+const { timeStamp } = require('console');
 const express = require('express');
 var app = express();
 var router = express.Router();
 var mysql = require('mysql');
 var path = require('path');
-var passport = require('passport');
-var LocalStrategy = require('passport-local').Strategy;
-const { json } = require('body-parser');
+var request = require("request");
+
+출처: https://sjh836.tistory.com/89 [빨간색코딩]
 
 //DATABASE SETTING
 var connection = mysql.createConnection({
@@ -16,75 +18,69 @@ var connection = mysql.createConnection({
     database : 'teamsb',
     dateStrings : 'date'
 });
-
 connection.connect();
 
-//Router Setting
-router.get('/', function(req, res){
-    var msg;
-    var errMsg = req.flash('error')
-    if(errMsg) msg = errMsg;
-    res.render('login.ejs', {'message' : msg});
-});
-
-passport.serializeUser(function(user, done){
-    console.log('passport session save : ', user.id, )
-    done(null, user.id) //line49에서 user에게 넘겨준 값을 
-});
-
-passport.deserializeUser(function(id, done){
-    console.log('passport session getdata : ', id)
-    done(null, id);
-});
-
-passport.use('local-login', new LocalStrategy({
-    checkField: 'check',
-    codeField: 'code',
-    usernameField: 'id',
-    passwordField: 'password',
-    nicknameField: 'nickname',
-    passReqToCallback: true
-}, function(_req, id, password, done){
-    //이부분
-    var query = connection.query('select * from user where id=?', [id], function(err, rows){
-        if(err) return done(err);
-        //console.log(rows[0].nickname); 찾았다 요놈
-        if(rows.length){ //이미 아이디가 있다면 이미 있다는 메세지와 함께 err
-            if(password.length < 6){
-                return done(null, false, {'check':false, 'code':304, 'message' : '비밀번호가 6자리 이하입니다.'})
-            }
-            else {
-                var query = connection.query('select * from user where password=?',[password], function(err, rows){
-                    if(err) return done(err)
-                    if(rows.length&&rows[0].nickname){ 
-                        return done(null, {'check':true, 'code':200, 'id':id, 'password':password, 'nickname':true})
-                        //세션에 담을 정보를 넘겨준다. user에게 담아서 serialize에게 전달
-                    } else if(rows.length){
-                        return done(null, {'check':true, 'code':200, 'id':id, 'password':password, 'nickname':false})
-                    } else {
-                        return done(null, false, {'check':false, 'code':302, 'message' : '비밀번호가 틀렸습니다.'})
+router.post('/', function(req, res){
+    var userId = req.body.userId;
+    var password = req.body.password;
+    request({ 
+        uri: 'http://smart.gachon.ac.kr:8080/WebJSON', 
+        method: 'post', 
+        body:{
+            fsp_cmd:'login',
+            DVIC_ID:'dwFraM1pVhl6mMn4npgL2dtZw7pZxw2lo2uqpm1yuMs=',
+            fsp_action:'UserAction',
+            USER_ID:userId,
+            PWD:password,
+            APPS_ID:'com.sz.Atwee.gachon'
+        },
+        json: true
+    }, 
+        function(error, response, body) {
+            var result = {};
+            if(body.ErrorCode=="0"){
+                var query = connection.query('select * from user where id=?',[userId],function(err,rows){
+                    if(err) throw err;
+                    if(rows[0]&&rows[0].certified==true&&rows[0].nickname){
+                        result.check=true;
+                        result.code=200;
+                        result.nickname=true;
+                        result.message="로그인 성공.";
+                        return res.json(result);
+                    }
+                    else if(rows[0]&&rows[0].certified==true&&!rows[0].nickname){ // 학교 인증 성공 -> 닉네임 설정X
+                        result.check=true;
+                        result.code=202;
+                        result.nickname=false;
+                        result.message="닉네임을 설정해야 합니다.";
+                        return res.json(result);
+                    }
+                    else{ // 학교 인증 성공 -> id저장 X
+                        connection.query('insert into user(id, user_no, certified) values(?, ?, ?);',[body.ds_output.userId,  body.ds_output.userUniqNo, true], function(err, rows){
+                            if(err) throw err;
+                            result.check=true;
+                            result.code=201;
+                            result.nickname=false;
+                            result.message="로그인 성공 & 유저 정보 DB 추가 & 닉네임 설정 필요"
+                            result.userName = body.ds_output.userNm;
+                            result.userNo = body.ds_output.userUniqNo;
+                            result.userId = body.ds_output.userId;
+                            result.email = body.ds_output.eml;
+                            result.telNo = body.ds_output.telNo;
+                            result.dept = body.ds_output.clubList.clubNm;
+                            return res.json(result);
+                        })
                     }
                 })
             }
-        }else {
-            return done(null, false, {'check':false, 'code':301, 'message' : '아이디 정보를 찾지 못했습니다.'}) 
-        };
-    })
-}
-));
-
-router.post('/',  function(req, res, next){
-    passport.authenticate('local-login', function(err, user, info){
-        if(err) res.status(500).json(err);
-        if(!user) return res.status(401).json(info);
-
-        req.logIn(user, function(err) {
-            //serialize에서 처리가 돼서 내려온다. user에 정보를 담아서 온다.
-            if(err) { return next(err); }
-            return res.json(user); //json으로 응답을 준다.
-        });
-    })(req,res,next); //authenticate가 반환하는 값들을 추가적으로 처리해줘야 한다.
-    //그래야 위에 //이부분으로 갈 수 있다.
+            else{
+                result.check=false;
+                result.code=301;
+                result.message="아이디 또는 비밀번호가 일치하지 않습니다.";
+                return res.json(result);
+            }
+        } 
+    );
 });
 
 module.exports = router;

@@ -19,13 +19,12 @@ connection.connect();
 
 router.post('/', function(req, res){
     var responseData = {};
-    var title = req.body.title;
     var category = req.body.category;
-    var text = req.body.text;
+    var keyword = req.body.keyword;
     var page = req.query.page;
 
-    if(title&&category&&!text){
-        var query = connection.query('select * from articlelist where title like ? and category=? order by timeStamp desc', ['%' + title + '%', category] , function(err, rows){
+    if(!keyword&&category){
+        var query = connection.query('select * from articlelist where category=? order by timeStamp desc', [category] , function(err, rows){
             if(err) throw err;
             if(rows){
                 var count = rows.length;
@@ -49,45 +48,14 @@ router.post('/', function(req, res){
                 }
                 responseData.check = true;
                 responseData.code = 200;
-                responseData.message = '제목과 카테고리에 따른 검색 완료.';
+                responseData.message = '카테고리에 따른 검색 완료';
                 responseData.content = conArr;
                 return res.json(responseData);
             }
         })
     }
-    else if(!title&&!category&&text){
-        var query = connection.query('select * from articlelist where text like ? order by timeStamp desc', ['%' + text + '%'] , function(err, rows){
-            if(err) throw err;
-            if(rows){
-                var count = rows.length;
-                var conArr = [];
-                for(var i=(page-1)*10;i<page*10&&i<count;i++){
-                    var hash = [];
-                    if(rows[i].hash_1){
-                        hash.push(rows[i].hash_1)
-                        if(rows[i].hash_2){
-                            hash.push(rows[i].hash_2)
-                            if(rows[i].hash_3){
-                                hash.push(rows[i].hash_3)
-                            }
-                        }
-                    }
-                    rows[i].hash = hash;
-                    delete rows[i].hash_1;
-                    delete rows[i].hash_2;
-                    delete rows[i].hash_3;
-                    conArr.push(rows[i]);
-                }
-                responseData.check = true;
-                responseData.code = 200;
-                responseData.message = '내용에 따른 검색 완료';
-                responseData.content = conArr;
-                return res.json(responseData);
-            }
-        })
-    }
-    else if(title&&category&&text){
-        var query = connection.query('select * from articlelist where title like ? and category=? or text like ? order by timeStamp desc', ['%' + title + '%', category, '%' + text + '%'] , function(err, rows){
+    else if(keyword&&category){
+        var query = connection.query('select * from articlelist where title like ? and category=? or text like ? order by timeStamp desc', ['%' + keyword + '%', category, '%' + keyword + '%'] , function(err, rows){
             if(err) throw err;
             if(rows){
                 var count = rows.length;
@@ -117,8 +85,8 @@ router.post('/', function(req, res){
             }
         })
     }
-    else if(title&&!category&&text){
-        var query = connection.query('select * from articlelist where title like ? or text like ? order by timeStamp desc', ['%' + title + '%', '%' + text + '%'] , function(err, rows){
+    else if(keyword&&!category){
+        var query = connection.query('select * from articlelist where title like ? or text like ? order by timeStamp desc', ['%' + keyword + '%', '%' + keyword + '%'] , function(err, rows){
             if(err) throw err;
             if(rows){
                 var count = rows.length;
