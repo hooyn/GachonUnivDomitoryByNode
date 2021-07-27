@@ -9,11 +9,12 @@ const { json } = require('body-parser');
 
 //DATABASE SETTING
 var connection = mysql.createConnection({
-    host : 'localhost',
+    host : '13.209.10.30',
     port : 3306,
     user : 'root',
     password : 'owner9809~',
-    database : 'teamsb'
+    database : 'teamsb',
+    dateStrings : 'date'
 });
 
 connection.connect();
@@ -45,21 +46,21 @@ passport.use('local-login', new LocalStrategy({
     passReqToCallback: true
 }, function(_req, id, password, done){
     //이부분
-    var query = connection.query('select * from userlogin where id=?', [id], function(err, rows){
+    var query = connection.query('select * from user where id=?', [id], function(err, rows){
         if(err) return done(err);
-        //console.log(rows[0].NICKNAME); 찾았다 요놈
+        //console.log(rows[0].nickname); 찾았다 요놈
         if(rows.length){ //이미 아이디가 있다면 이미 있다는 메세지와 함께 err
             if(password.length < 6){
                 return done(null, false, {'check':false, 'code':304, 'message' : '비밀번호가 6자리 이하입니다.'})
             }
             else {
-                var query = connection.query('select * from userlogin where password=?',[password], function(err, rows){
+                var query = connection.query('select * from user where password=?',[password], function(err, rows){
                     if(err) return done(err)
                     if(rows.length&&rows[0].nickname){ 
                         return done(null, {'check':true, 'code':200, 'id':id, 'password':password, 'nickname':true})
                         //세션에 담을 정보를 넘겨준다. user에게 담아서 serialize에게 전달
                     } else if(rows.length){
-                        return done(null, false, {'check':false, 'code':303, 'nickname':false, 'message' : '닉네임 정보가 없습니다.'})
+                        return done(null, {'check':true, 'code':200, 'id':id, 'password':password, 'nickname':false})
                     } else {
                         return done(null, false, {'check':false, 'code':302, 'message' : '비밀번호가 틀렸습니다.'})
                     }

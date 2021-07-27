@@ -126,7 +126,6 @@ router.get('/taxi', function(req, res){
     var responseData = {};
     var category = req.query.category;
     var page = req.query.page;
-
     var query = connection.query('select * from articlelist where category="taxi" order by timeStamp desc', function(err, rows){
         if(err) throw err;
         if(rows){
@@ -149,6 +148,7 @@ router.get('/taxi', function(req, res){
                 delete rows[i].hash_3;
                 conArr.push(rows[i]);
             }
+            console.log("taxi1");
             responseData.check = true;
             responseData.code = 200;
             responseData.message = '택시 category 불러오기 성공.';

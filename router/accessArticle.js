@@ -26,7 +26,6 @@ router.post('/', function(req, res){
         if(err) throw err;
         if(rows.length){
             count = rows[0].viewCount + 1;
-            console.log(count);
             var query = connection.query('update articlelist set viewCount=? where no=?', [count, no], function(err, rows){
                 if(err) throw err;
                 responseData.check = true;
@@ -44,7 +43,7 @@ router.post('/', function(req, res){
     })
 });
 
-router.get('/getViewCount', function(req, res){
+router.post('/getViewCount', function(req, res){
     var responseData = {};
     var no = req.body.no;
     var query = connection.query('select viewCount from articlelist where no=?',[no],function(err, rows){

@@ -10,8 +10,7 @@ var connection = mysql.createConnection({
     port : 3306,
     user : 'root',
     password : 'owner9809~',
-    database : 'teamsb',
-    dateStrings : 'date'
+    database : 'teamsb'
 });
 connection.connect();
 

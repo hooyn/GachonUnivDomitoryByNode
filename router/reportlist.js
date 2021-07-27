@@ -16,9 +16,9 @@ var connection = mysql.createConnection({
 });
 connection.connect();
 
-router.get('/', function(req, res){
+router.post('/', function(req, res){
     var responseData = {};
-    var article_no = req.query.article_no;
+    var article_no = req.body.article_no;
 
     if(article_no){
         var query = connection.query('select * from reportlist where article_no=? order by report_no desc',[article_no] , function(err, rows){

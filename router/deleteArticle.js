@@ -24,7 +24,7 @@ router.post('/', function(req, res){
 
     var query=connection.query('select * from articlelist where no=?', [no], function(err, rows){
         if(err) throw err;
-        if(rows[0].writeUser==curUser){
+        if(rows[0].userId==curUser){
             var sql = 'delete from articlelist where no=?';
             var query = connection.query(sql, [no], function(err, rows){
                 if(err) throw err;

@@ -19,8 +19,9 @@ connection.connect();
 router.get('/', function(req, res){
     var responseData = {};
 
-    var query = connection.query('select * from articlelist_trash order by no desc', function(err, rows){
+    var query = connection.query('select * from articlelist_trash', function(err, rows){
                 if(err) throw err;
+                 console.log(rows)
                 responseData.check = true;
                 responseData.code = 200;
                 responseData.message = '게시물 업로드 완료.';
@@ -29,4 +30,4 @@ router.get('/', function(req, res){
             })
 	});
 
-    module.exports = router; //다른 파일에서 이 파일을 쓸 수 있게 한다.
+module.exports = router;

@@ -10,8 +10,7 @@ var connection = mysql.createConnection({
     port : 3306,
     user : 'root',
     password : 'owner9809~',
-    database : 'teamsb',
-    dateStrings : 'date'
+    database : 'teamsb'
 });
 connection.connect();
 
@@ -37,18 +36,17 @@ router.post('/nickname', function(req, res){
 router.post('/', function(req, res){
     var responseData = {};
     var id = req.body.id;
-    var writeUser = req.body.writeUser;
  
     var query = connection.query('select * from user where id=?',[id], function(err, rows_a){
         if(err) throw err;
-        if(rows_a[0]){ //[writeUser]를 나중에 [id]로 수정 writeUser가 id가 될 거니까
-            var query = connection.query('select * from articlelist where writeUser=?',[writeUser], function(err, rows){
+        if(rows_a[0]){ 
+            var query = connection.query('select * from articlelist where userId=?',[id], function(err, rows){
                 var cnt = rows.length;
                 rows_a[0].article_count = cnt;
                 responseData.check = true;
                 responseData.code = 200;
                 responseData.message = '아이디에 따른 유저 정보 전달 완료.';
-                responseData.content = rows_a ;
+                responseData.content = rows_a;
                 return res.json(responseData); 
             })
         } else {

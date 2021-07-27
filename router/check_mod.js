@@ -17,7 +17,7 @@ connection.connect();
 
 
 
-router.get('/', function(req, res){
+router.post('/', function(req, res){
     var responseData = {};
     var curUser = req.body.curUser;
     var no = req.body.no;
