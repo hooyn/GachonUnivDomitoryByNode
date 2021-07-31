@@ -1,10 +1,8 @@
 const express = require('express');
-var app = express();
 var router = express.Router();
-var path = require('path');
-var main = require('./main');
-var nicknameCheck = require('./nicknameCheck');
-var nicknameSet= require('./nicknameSet');
+var dateFormat = require('dateformat');
+var nicknameCheck = require('./nicknameCheck'); //닉네임 중복 체크 API
+var nicknameSet= require('./nicknameSet'); 
 var login = require('./login');
 var logout = require('./logout')
 var calmenu = require('./calmenu')
@@ -22,14 +20,13 @@ var report = require('./report')
 var reportlist = require('./reportlist')
 var reply = require('./reply')
 var check_replymod = require('./check_replymod')
-var loginRequest = require('./loginRequest')
+var cleanArticle = require('./cleanArticle')
 
 //url routing
 router.get('/', function(req, res){
 	console.log('index load');
 });
 
-router.use('/main', main);
 router.use('/nicknameCheck', nicknameCheck);
 router.use('/nicknameSet', nicknameSet);
 router.use('/login', login)
@@ -49,6 +46,6 @@ router.use('/report', report)
 router.use('/reportlist', reportlist)
 router.use('/reply', reply)
 router.use('/check_replymod', check_replymod)
-router.use('/loginRequest', loginRequest)
+router.use('/cleanArticle', cleanArticle)
 
 module.exports = router;

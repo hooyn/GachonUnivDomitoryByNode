@@ -1,21 +1,40 @@
 const express = require('express');
-var app = express();
 var router = express.Router();
 var mysql = require('mysql');
-var path = require('path');
+var dateFormat = require('dateformat');
 
 //DATABASE SETTING
-var connection = mysql.createConnection({
+var teamsbDB = {
     host : '13.209.10.30',
     port : 3306,
     user : 'root',
     password : 'owner9809~',
     database : 'teamsb',
     dateStrings : 'date'
-});
-connection.connect();
+  };
+  var connection
+  function handleDisconnect() {
+      connection = mysql.createConnection(teamsbDB); 
+      connection.connect(function(err) {            
+        if(err) {                            
+          console.log('error when connecting to db:', err);
+          setTimeout(handleDisconnect, 2000); 
+        }                                   
+      });                                 
+                                             
+      connection.on('error', function(err) {
+        console.log('db error', err);
+        if(err.code === 'PROTOCOL_CONNECTION_LOST') { 
+          return handleDisconnect();                      
+        } else {                                    
+          throw err;                              
+        }
+      });
+    }
+  
+handleDisconnect();
 
-
+//ACCESS ROUTER WRITEARTICLE
 router.post('/', function(req, res){
     var responseData = {};
     var title = req.body.title;
@@ -24,81 +43,99 @@ router.post('/', function(req, res){
     var userNickname;
     var text = req.body.text;
     var hash = req.body.hash;
-    console.log("load write");
 
     var query = connection.query('select * from user where id=?', [userId], function(err, rows){
         if(err) throw err;
-        if(rows.length){
-            console.log("write" + userId);
+        if(rows[0]){ // user DB ID 사용자 인증 성공
+            console.log("[writeArticle] '" + userId + "'님 사용자 아이디 인증 성공" + " [ " + dateFormat(Date(), "yyyy-mm-dd, h:MM:ss TT") + " ] " 
+);
             userNickname = rows[0].nickname;
             var sql = 'insert into articlelist (title, category, userId, userNickname, text, hash_1, hash_2, hash_3) values (?, ?, ?, ?, ?, ?, ?, ?)';
             if(!userNickname){
+                console.log("[writeArticle] '" + userId + "'님 닉네임 설정 필요" + " [ " + dateFormat(Date(), "yyyy-mm-dd, h:MM:ss TT") + " ] " 
+);
                 responseData.check = false;
                 responseData.code = 305;
-                responseData.message = '닉네임이 저장되어 있지 않습니다.';
+                responseData.message = '닉네임이 설정 필요';
                 return res.json(responseData);
             }
             else if(!title){
+                console.log("[writeArticle] '" + userId + "'님 제목 입력 필요" + " [ " + dateFormat(Date(), "yyyy-mm-dd, h:MM:ss TT") + " ] " 
+);
                 responseData.check = false;
                 responseData.code = 301;
-                responseData.message = '제목이 없습니다.';
+                responseData.message = '제목 NOT FOUND';
                 return res.json(responseData);
             }
 
             else if(!category){
+                console.log("[writeArticle] '" + userId + "'님 카테고리 입력 필요" + " [ " + dateFormat(Date(), "yyyy-mm-dd, h:MM:ss TT") + " ] " 
+);
                 responseData.check = false;
                 responseData.code = 302;
-                responseData.message = '카테고리가 없습니다.';
+                responseData.message = '카테고리 NOT FOUND';
                 return res.json(responseData);
             }
             else if(!text){
+                console.log("[writeArticle] '" + userId + "'님 내용 입력 필요" + " [ " + dateFormat(Date(), "yyyy-mm-dd, h:MM:ss TT") + " ] " 
+);
                 responseData.check = false;
                 responseData.code = 303;
-                responseData.message = '글의 내용이 없습니다.';
+                responseData.message = '내용 NOT FOUND';
                 return res.json(responseData);
             }
-            else if(!hash){
+            else if(!hash){ //해시태그 없을 때
                 var query = connection.query('insert into articlelist (title, category, userId, userNickname, text) values (?, ?, ?, ?, ?)', [title, category, userId, userNickname, text], function(err, rows){
                     if(err) throw err;
+                    console.log("[writeArticle] '" + userId + "'님 글 저장 완료" + " [ " + dateFormat(Date(), "yyyy-mm-dd, h:MM:ss TT") + " ] " 
+);
                     responseData.check = true;
                     responseData.code = 200;
-                    responseData.message = '글이 저장되었습니다.';
+                    responseData.message = '글 저장 완료';
                     return res.json(responseData);
                 })
             }
         
-            else if(hash[0]&&!hash[1]&&!hash[2]){
+            else if(hash[0]&&!hash[1]&&!hash[2]){ //해시태그가 하나일 때
                 var query = connection.query('insert into articlelist (title, category, userId, userNickname, text, hash_1) values (?, ?, ?, ?, ?, ?)', [title, category,userId, userNickname, text, hash[0]], function(err, rows){
                     if(err) throw err;
+                    console.log("[writeArticle] '" + userId + "'님 글 저장 완료" + " [ " + dateFormat(Date(), "yyyy-mm-dd, h:MM:ss TT") + " ] " 
+);
                     responseData.check = true;
                     responseData.code = 200;
-                    responseData.message = '글이 저장되었습니다.';
+                    responseData.message = '글 저장 완료';
                     return res.json(responseData);
                 })
             }
-            else if(hash[0]&&hash[1]&&!hash[2]){
+            else if(hash[0]&&hash[1]&&!hash[2]){ //해시태그가 두개일 때
                 var query = connection.query('insert into articlelist (title, category,userId, userNickname, text, hash_1, hash_2) values (?, ?, ?, ?, ?, ?, ?)', [title, category, userId, userNickname, text, hash[0], hash[1]], function(err, rows){
                     if(err) throw err;
+                    console.log("[writeArticle] '" + userId + "'님 글 저장 완료" + " [ " + dateFormat(Date(), "yyyy-mm-dd, h:MM:ss TT") + " ] " 
+);
                     responseData.check = true;
                     responseData.code = 200;
-                    responseData.message = '글이 저장되었습니다.';
+                    responseData.message = '글 저장 완료';
                     return res.json(responseData);
                 })
             }
-            else{
+            else{ //해시태그가 세개일 때
                 var query = connection.query(sql, [title, category, userId, userNickname, text, hash[0], hash[1], hash[2]], function(err, rows){
                     if(err) throw err;
+                    console.log("[writeArticle] '" + userId + "'님 글 저장 완료" + " [ " + dateFormat(Date(), "yyyy-mm-dd, h:MM:ss TT") + " ] " 
+);
                     responseData.check = true;
                     responseData.code = 200;
-                    responseData.message = '글이 저장되었습니다.';
+                    responseData.message = '글 저장 완료';
                     return res.json(responseData);
                 })
             }
         }
-        else{
+        else{ // user DB ID 사용자 확인 실패
+            console.log("[writeArticle] '" + userId + "'님 사용자 아이디 인증 실패" + " [ " + dateFormat(Date(), "yyyy-mm-dd, h:MM:ss TT") + " ] " 
+);
             responseData.check = false;
             responseData.code = 304;
-            responseData.message = '사용자가 아닙니다.[ID ERROR].';
+            responseData.message = '사용자 NOT FOUND';
             return res.json(responseData);
         }
     })
