@@ -17,13 +17,13 @@ function handleDisconnect() {
     connection = mysql.createConnection(teamsbDB); 
     connection.connect(function(err) {            
       if(err) {                            
-        console.log('error when connecting to db:', err);
+        console.error('error when connecting to db:' + " [ " + dateFormat(Date(), "yyyy-mm-dd, h:MM:ss TT") + " ] " , err);
         setTimeout(handleDisconnect, 2000); 
       }                                   
     });                                 
                                            
     connection.on('error', function(err) {
-      console.log('db error', err);
+      console.error('db error' + " [ " + dateFormat(Date(), "yyyy-mm-dd, h:MM:ss TT") + " ] " , err);
       if(err.code === 'PROTOCOL_CONNECTION_LOST') { 
         return handleDisconnect();                      
       } else {                                    
@@ -50,31 +50,34 @@ router.post('/', function(req, res){
                     if(err) throw err;
                     connection.query('delete from replylist where article_no=?',[no],function(err,rows){
                       if(err) throw err;
-                      console.log("[deleteArticle]" + no + '번 글의 댓글 삭제 완료' + " [ " + dateFormat(Date(), "yyyy-mm-dd, h:MM:ss TT") + " ] " )
+                      console.log("[deleteArticle] [" + no + '] 번 글과 관련된 댓글을 삭제하였습니다.' + " [ " + dateFormat(Date(), "yyyy-mm-dd, h:MM:ss TT") + " ] " )
                     })
                     connection.query('delete from reportlist where article_no=?',[no],function(err, rows){
                       if(err) throw err;
-                      console.log(no + '번 글의 댓글 리스트 삭제 완료' + " [ " + dateFormat(Date(), "yyyy-mm-dd, h:MM:ss TT") + " ] " )
+                      console.log("[deleteArticle] [" + no + ']번 글과 관련된 신고 내역을 삭제하였습니다.' + " [ " + dateFormat(Date(), "yyyy-mm-dd, h:MM:ss TT") + " ] " )
                     })
-                    console.log("[deleteArticle]" + no + '번 글의 신고 내역 삭제 완료' + " [ " + dateFormat(Date(), "yyyy-mm-dd, h:MM:ss TT") + " ] " )
+                    connection.query('delete from notificationlist where article_no=?',[no],function(err, rows){
+                      if(err) throw err;
+                      console.log("[deleteArticle] [" + no + ']번 글과 관련된 알림 내역을 삭제하였습니다.' + " [ " + dateFormat(Date(), "yyyy-mm-dd, h:MM:ss TT") + " ] " )
+                    })
                     responseData.check = true;
                     responseData.code = 200;
-                    responseData.message = '글 삭제 성공';
+                    responseData.message = '글과 관련 댓글, 신고 내역을 삭제하였습니다.';
                     return res.json(responseData);
                 })
             }
             else{
-                console.log("[deleteArticle] '" + curUser +"'님 " + no + "번 글의 작성자 확인 실패" + " [ " + dateFormat(Date(), "yyyy-mm-dd, h:MM:ss TT") + " ] " )
+                console.log("[deleteArticle] [" + curUser +"] 사용자 [" + no + "] 번 글의 작성자가 아닙니다." + " [ " + dateFormat(Date(), "yyyy-mm-dd, h:MM:ss TT") + " ] " )
                 responseData.check = false;
                 responseData.code = 301;
-                responseData.message = '글의 작성자 NOT EQUAL 현재 사용자';
+                responseData.message = '해당 글의 작성자가 아닙니다.';
                 return res.json(responseData);
             }
         } else{
-            console.log("[deleteArticle] " + no + "번 글 NOT FOUND" + " [ " + dateFormat(Date(), "yyyy-mm-dd, h:MM:ss TT") + " ] " )
+            console.log("[deleteArticle] [" + no + "] 번 글을 찾을 수 없습니다." + " [ " + dateFormat(Date(), "yyyy-mm-dd, h:MM:ss TT") + " ] " )
             responseData.check = false;
             responseData.code = 302;
-            responseData.message = '글 no NOT FOUND';
+            responseData.message = '해당 글을 찾을 수 없습니다.';
             return res.json(responseData);
         }
     })

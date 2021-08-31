@@ -1,4 +1,4 @@
-const express = require('express');
+ const express = require('express');
 var router = express.Router();
 var mysql = require('mysql');
 var dateFormat = require('dateformat');
@@ -17,13 +17,13 @@ var teamsbDB = {
       connection = mysql.createConnection(teamsbDB); 
       connection.connect(function(err) {            
         if(err) {                            
-          console.log('error when connecting to db:', err);
+          console.log('error when connecting to db:' + " [ " + dateFormat(Date(), "yyyy-mm-dd, h:MM:ss TT") + " ] " , err);
           setTimeout(handleDisconnect, 2000); 
         }                                   
       });                                 
                                              
       connection.on('error', function(err) {
-        console.log('db error', err);
+        console.log('db error' + " [ " + dateFormat(Date(), "yyyy-mm-dd, h:MM:ss TT") + " ] " , err);
         if(err.code === 'PROTOCOL_CONNECTION_LOST') { 
           return handleDisconnect();                      
         } else {                                    
@@ -40,33 +40,34 @@ router.post('/', function(req, res){
     var curId = req.body.curId;
     var nickname = req.body.nickname;
 
+    
+
     var query = connection.query('select * from user where id=?', [curId], function(err, rows){
-        if(err) return done(err);
+        if(err) return err;
         if(rows.length){ 
             var query = connection.query('select * from user where nickname=?', [nickname], function(err, rows){
-                if(err) return done(err);
-                if(rows.length){
-                    console.log("[nicknameSet] '" + curId + "'" + "님 '" + nickname + "' 중복" + " [ " + dateFormat(Date(), "yyyy-mm-dd, h:MM:ss TT") + " ] " 
-);
-                    responseData.check = false;
-                    responseData.code = 304;
-                    responseData.message = '닉네임 중복';
-                    return res.json(responseData);
+                if(err) return res.json(err);
+                if(rows[0]){
+                        console.log("[nicknameSet] [" + curId + "] 사용자 [" + nickname + "] 중복되는 닉네임입니다." + " [ " + dateFormat(Date(), "yyyy-mm-dd, h:MM:ss TT") + " ] " );
+                        responseData.check = false;
+                        responseData.code = 304;
+                        responseData.message = '중복되는 닉네임입니다.';
+                        return res.json(responseData);
                 }
                 else{
                     if(nickname.length<2 ) {
-                        console.log("[nicknameSet] '" + curId + "'" + "님 '" + nickname + "' 닉네임 2글자 미만 설정 제한" + " [ " + dateFormat(Date(), "yyyy-mm-dd, h:MM:ss TT") + " ] " 
+                        console.log("[nicknameSet] [" + curId + "] 사용자 [" + nickname + "] 닉네임 2글자 미만으로 설정할 수 없습니다." + " [ " + dateFormat(Date(), "yyyy-mm-dd, h:MM:ss TT") + " ] " 
 );
                         responseData.check = false;
                         responseData.code = 301;
-                        responseData.message ='2글자 미만 닉네임 설정 불가';
+                        responseData.message ='닉네임을 2글자 미만으로 설정할 수 없습니다.';
                         return res.json(responseData);
                     }else if(nickname.length>8) {
-                        console.log("[nicknameSet] '" + curId + "'" + "님 '" + nickname + "' 닉네임 8글자 초과 설정 제한" + " [ " + dateFormat(Date(), "yyyy-mm-dd, h:MM:ss TT") + " ] " 
+                        console.log("[nicknameSet] [" + curId + "] 사용자 [" + nickname + "] 닉네임 8글자 초과로 설정할 수 없습니다." + " [ " + dateFormat(Date(), "yyyy-mm-dd, h:MM:ss TT") + " ] " 
 );
                         responseData.check = false;
                         responseData.code = 302;
-                        responseData.message ='8글자 초과 닉네임을 설정 불가';
+                        responseData.message ='닉네임을 8글자 초과로 설정할 수 없습니다.';
                         return res.json(responseData);
                     } else {
                         var query = connection.query('update user set nickname=? where id=?', [nickname, curId], function(err, rows){
@@ -77,22 +78,25 @@ router.post('/', function(req, res){
                             connection.query('update replylist set userNickname=? where userId=?', [nickname, curId], function(err, rows){
                                 if(err) throw err;
                             })
-                            console.log("[nicknameSet] '" + curId + "'" + "님 '" + nickname + "' 닉네임 userDB에 저장" + " [ " + dateFormat(Date(), "yyyy-mm-dd, h:MM:ss TT") + " ] " 
+                            connection.query('update notificationlist set nickname=? where curUser=?', [nickname, curId], function(err, rows){
+                                if(err) throw err;
+                            })
+                            console.log("[nicknameSet] [" + curId + "] 사용자 [" + nickname + "] 닉네임이 데이터베이스에 저장되었습니다." + " [ " + dateFormat(Date(), "yyyy-mm-dd, h:MM:ss TT") + " ] " 
 );
                                 responseData.check = true;
                                 responseData.code = 200;
-                                responseData.message = '닉네임 저장';
+                                responseData.message = '닉네임이 데이터베이스에 저장되었습니다.';
                                 return res.json(responseData);
                         })
                     }
                 }
             })
         } else {
-            console.log("[nicknameSet] '" + curId + "'" + " 아이디 NOT FOUND" + " [ " + dateFormat(Date(), "yyyy-mm-dd, h:MM:ss TT") + " ] " 
+            console.log("[nicknameSet] [" + curId + "] 사용자" + " 아이디를 찾을 수 없습니다." + " [ " + dateFormat(Date(), "yyyy-mm-dd, h:MM:ss TT") + " ] " 
 );
             responseData.check = false;
             responseData.code = 303;
-            responseData.message = '아이디 NOT FOUND';
+            responseData.message = '아이디를 찾을 수 없습니다.';
             return res.json(responseData);
         }
     })

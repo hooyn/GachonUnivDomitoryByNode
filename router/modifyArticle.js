@@ -17,13 +17,13 @@ var teamsbDB = {
       connection = mysql.createConnection(teamsbDB); 
       connection.connect(function(err) {            
         if(err) {                            
-          console.log('error when connecting to db:', err);
+          console.error('error when connecting to db:' + " [ " + dateFormat(Date(), "yyyy-mm-dd, h:MM:ss TT") + " ] " , err);
           setTimeout(handleDisconnect, 2000); 
         }                                   
       });                                 
                                              
       connection.on('error', function(err) {
-        console.log('db error', err);
+        console.error('db error' + " [ " + dateFormat(Date(), "yyyy-mm-dd, h:MM:ss TT") + " ] " , err);
         if(err.code === 'PROTOCOL_CONNECTION_LOST') { 
           return handleDisconnect();                      
         } else {                                    
@@ -44,107 +44,113 @@ router.post('/', function(req, res){
     var text = req.body.text;
     var hash = req.body.hash;
 
+    var today = dateFormat(Date(),'yyyy-mm-dd');
+    var startday = dateFormat(Date(),'2021-08-01');
+    var endday = dateFormat(Date(),'2021-08-02');
+    var bool;
+
+    if(today>startday && today<endday){
+        bool=true;
+    }
+    else{
+        bool=false;
+    }
+
   
     if(!title){
-        console.log("[modifyArticle] '" + curUser + "'님 제목 입력 필요" + " [ " + dateFormat(Date(), "yyyy-mm-dd, h:MM:ss TT") + " ] " 
-);
+        console.log("[modifyArticle] [" + curUser + "] 사용자 게시글의 제목을 입력해주세요." + " [ " + dateFormat(Date(), "yyyy-mm-dd, h:MM:ss TT") + " ] " );
         responseData.check = false;
         responseData.code = 301;
-        responseData.message = '제목 NOT FOUND';
+        responseData.message = '게시글의 제목을 입력해주세요.';
         return res.json(responseData);
     }
     else if(!category){
-        console.log("[modifyArticle] '" + curUser + "'님 카테고리 입력 필요" + " [ " + dateFormat(Date(), "yyyy-mm-dd, h:MM:ss TT") + " ] " 
-);
+        console.log("[modifyArticle] [" + curUser + "] 사용자 게시글의 카테고리를 입력해주세요." + " [ " + dateFormat(Date(), "yyyy-mm-dd, h:MM:ss TT") + " ] " );
         responseData.check = false;
         responseData.code = 302;
-        responseData.message = '카테고리 NOT FOUND';
+        responseData.message = '게시글의 카테고리를 입력해주세요.';
         return res.json(responseData);
     }
     else if(!text){
-        console.log("[modifyArticle] '" + curUser + "'님 내용 입력 필요" + " [ " + dateFormat(Date(), "yyyy-mm-dd, h:MM:ss TT") + " ] " 
-);
+        console.log("[modifyArticle] [" + curUser + "] 사용자 게시글의 내용을 입력해주세요." + " [ " + dateFormat(Date(), "yyyy-mm-dd, h:MM:ss TT") + " ] ");
         responseData.check = false;
         responseData.code = 303;
-        responseData.message = '내용 NOT FOUND';
+        responseData.message = '게시글의 내용을 입력해주세요.';
         return res.json(responseData);
     }
     else if(!no){
-        console.log("[modifyArticle] '" + curUser + "'님 글no 입력 필요" + " [ " + dateFormat(Date(), "yyyy-mm-dd, h:MM:ss TT") + " ] " 
-);
+        console.log("[modifyArticle] [" + curUser + "] 사용자 게시글의 번호을 입력해주세요." + " [ " + dateFormat(Date(), "yyyy-mm-dd, h:MM:ss TT") + " ] " );
         responseData.check = false;
         responseData.code = 304;
-        responseData.message = '글 no NOT FOUND';
+        responseData.message = '게시글의 번호을 입력해주세요.';
+        return res.json(responseData);
+    }
+    else if(bool==false&&category=="룸메"){
+        console.log("[writeArticle] [" + curUser + "] 사용자 룸메 신청 기간이 아닙니다." + " [ " + dateFormat(Date(), "yyyy-mm-dd, h:MM:ss TT") + " ] " );
+        responseData.check = false;
+        responseData.code = 306;
+        responseData.message = '룸메 신청 기간이 아닙니다.';
         return res.json(responseData);
     }
     else{
         var query=connection.query('select * from articlelist where no=?', [no], function(err, rows){
             if(err) throw err;
             if(rows[0]){
-                console.log("[modifyArticle] article no:" + no + " 해당 글 검색 성공" + " [ " + dateFormat(Date(), "yyyy-mm-dd, h:MM:ss TT") + " ] " 
-);
                 if(rows[0].userId==curUser){
-                    if(!hash[0]&&!hash[1]&&!hash[2]){
-                        var query = connection.query('update articlelist set title=?, category=?, text=? where no=?', [title, category, text, no], function(err, rows){
+                    if(!hash){
+                        var query = connection.query('update articlelist set title=?, category=?, text=?, hash_1=?, hash_2=?, hash_3=? where no=?', [title, category, text, null, null, null, no], function(err, rows){
                             if(err) throw err;
-                            console.log("[modifyArticle] '" + curUser + "'님 " + no +"번 글 수정 완료" + " [ " + dateFormat(Date(), "yyyy-mm-dd, h:MM:ss TT") + " ] " 
-);
+                            console.log("[modifyArticle] [" + curUser + "] 사용자 [" + no + "] 번 게시글을 수정했습니다." + " [ " + dateFormat(Date(), "yyyy-mm-dd, h:MM:ss TT") + " ] " );
                             responseData.check = true;
                             responseData.code = 200;
-                            responseData.message = '글 수정 완료';
+                            responseData.message = '게시글이 수정되었습니다.';
                             return res.json(responseData);
                         })
                     }
-                
                     else if(hash[0]&&!hash[1]&&!hash[2]){
-                        var query = connection.query('update articlelist set title=?, category=?, text=?, hash_1=? where no=?', [title, category, text, hash[0], no], function(err, rows){
+                        var query = connection.query('update articlelist set title=?, category=?, text=?, hash_1=?, hash_2=?, hash_3=? where no=?', [title, category, text, hash[0], null, null, no], function(err, rows){
                             if(err) throw err;
-                            console.log("[modifyArticle] '" + curUser + "'님 " + no +"번 글 수정 완료" + " [ " + dateFormat(Date(), "yyyy-mm-dd, h:MM:ss TT") + " ] " 
-);
+                            console.log("[modifyArticle] [" + curUser + "] 사용자 [" + no + "] 번 게시글을 수정했습니다." + " [ " + dateFormat(Date(), "yyyy-mm-dd, h:MM:ss TT") + " ] " );
                             responseData.check = true;
                             responseData.code = 200;
-                            responseData.message = '글 수정 완료';
+                            responseData.message = '게시글이 수정되었습니다.';
                             return res.json(responseData);
                         })
                     }
                     else if(hash[0]&&hash[1]&&!hash[2]){
-                        var query = connection.query('update articlelist set title=?, category=?, text=?, hash_1=?, hash_2=? where no=?', [title, category, text, hash[0], hash[1], no], function(err, rows){
+                        var query = connection.query('update articlelist set title=?, category=?, text=?, hash_1=?, hash_2=?, hash_3=? where no=?', [title, category, text, hash[0], hash[1], null, no], function(err, rows){
                             if(err) throw err;
-                            console.log("[modifyArticle] '" + curUser + "'님 " + no +"번 글 수정 완료" + " [ " + dateFormat(Date(), "yyyy-mm-dd, h:MM:ss TT") + " ] " 
-);
+                            console.log("[modifyArticle] [" + curUser + "] 사용자 [" + no + "] 번 게시글을 수정했습니다." + " [ " + dateFormat(Date(), "yyyy-mm-dd, h:MM:ss TT") + " ] " );
                             responseData.check = true;
                             responseData.code = 200;
-                            responseData.message = '글 수정 완료';
+                            responseData.message = '게시글이 수정되었습니다.';
                             return res.json(responseData);
                         })
                     }
                     else{
                         var query = connection.query('update articlelist set title=?, category=?, text=?, hash_1=?, hash_2=?, hash_3=? where no=?', [title, category, text, hash[0], hash[1], hash[2], no], function(err, rows){
                             if(err) throw err;
-                            console.log("[modifyArticle] '" + curUser + "'님 " + no +"번 글 수정 완료" + " [ " + dateFormat(Date(), "yyyy-mm-dd, h:MM:ss TT") + " ] " 
-);
+                            console.log("[modifyArticle] [" + curUser + "] 사용자 [" + no + "] 번 게시글을 수정했습니다." + " [ " + dateFormat(Date(), "yyyy-mm-dd, h:MM:ss TT") + " ] " );
                             responseData.check = true;
                             responseData.code = 200;
-                            responseData.message = '글 수정 완료';
+                            responseData.message = '게시글이 수정되었습니다.';
                             return res.json(responseData);
                         })
                     }
                 }
                 else{
-                    console.log("[modifyArticle] '" + curUser + "'님은 글 작성자가 아닙니다" + " [ " + dateFormat(Date(), "yyyy-mm-dd, h:MM:ss TT") + " ] " 
-);
+                    console.log("[modifyArticle] [" + curUser + "] 사용자 게시글의 작성자가 아닙니다." + " [ " + dateFormat(Date(), "yyyy-mm-dd, h:MM:ss TT") + " ] " );
                     responseData.check = false;
                     responseData.code = 306;
-                    responseData.message = '글 작성자 NOT EQUAL 현재 사용자';
+                    responseData.message = '게시글의 작성자가 아닙니다.';
                     return res.json(responseData);
                 }
             }
             else{
-                console.log("[modifyArticle] '" + curUser + "'님 해당 글no를 찾을 수 없습니다" + " [ " + dateFormat(Date(), "yyyy-mm-dd, h:MM:ss TT") + " ] " 
-);
+                console.log("[modifyArticle] [" + no + "] 번 게시글을 찾을 수 없습니다." + " [ " + dateFormat(Date(), "yyyy-mm-dd, h:MM:ss TT") + " ] " );
                 responseData.check = false;
                 responseData.code = 305;
-                responseData.message = '글 NOT FOUND';
+                responseData.message = '게시글을 찾을 수 없습니다.';
                 return res.json(responseData);
             }
         })

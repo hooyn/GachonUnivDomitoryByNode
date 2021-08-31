@@ -2,6 +2,7 @@ const express = require('express');
 var router = express.Router();
 var mysql = require('mysql');
 var dateFormat = require('dateformat');
+var fs = require('fs');
 
 //DATABASE SETTING
 var teamsbDB = {
@@ -17,13 +18,13 @@ var teamsbDB = {
       connection = mysql.createConnection(teamsbDB); 
       connection.connect(function(err) {            
         if(err) {                            
-          console.log('error when connecting to db:', err);
+          console.error('error when connecting to db:' + " [ " + dateFormat(Date(), "yyyy-mm-dd, h:MM:ss TT") + " ] " , err);
           setTimeout(handleDisconnect, 2000); 
         }                                   
       });                                 
                                              
       connection.on('error', function(err) {
-        console.log('db error', err);
+        console.error('db error' + " [ " + dateFormat(Date(), "yyyy-mm-dd, h:MM:ss TT") + " ] " , err);
         if(err.code === 'PROTOCOL_CONNECTION_LOST') { 
           return handleDisconnect();                      
         } else {                                    
@@ -62,20 +63,27 @@ router.post('/', function(req, res){
                     delete rows[i].hash_1;
                     delete rows[i].hash_2;
                     delete rows[i].hash_3;
+                    var fileExists = fs.existsSync(__dirname + '/user_profile_image/' + rows[i].userId + '.txt');
+                    if(fileExists){
+                      var fileRead = fs.readFileSync(__dirname + '/user_profile_image/' + rows[i].userId + '.txt', 'utf8');
+                        rows[i].imageSource = fileRead;
+                      }
+                    else{
+                        rows[i].imageSource = null;
+                    }
                     conArr.push(rows[i]);
                 }
-                console.log("[search] 카테고리에 따른 검색 성공" + " [ " + dateFormat(Date(), "yyyy-mm-dd, h:MM:ss TT") + " ] " 
-)
+                console.log("[search] 카테고리에 따른 검색을 요청하였습니다." + " [ " + dateFormat(Date(), "yyyy-mm-dd, h:MM:ss TT") + " ] " )
                 responseData.check = true;
                 responseData.code = 200;
-                responseData.message = '카테고리에 따른 검색 완료';
+                responseData.message = '카테고리에 따른 검색이 완료되었습니다.';
                 responseData.content = conArr;
                 return res.json(responseData);
             }
         })
     }
     else if(keyword&&category){
-        var query = connection.query('select * from (select * from articlelist where category=?) as article where text like ? or title like ? order by timeStamp desc;', [category, '%' + keyword + '%', '%' + keyword + '%'] , function(err, rows){
+        var query = connection.query('select * from (select * from articlelist where category=?) as article where text like ? or title like ? or hash_1 like ? or hash_2 like ? or hash_3 like ?  order by timeStamp desc;', [category, '%' + keyword + '%', '%' + keyword + '%', '%' + keyword + '%', '%' + keyword + '%', '%' + keyword + '%'] , function(err, rows){
             if(err) throw err;
             if(rows){
                 var count = rows.length;
@@ -95,20 +103,27 @@ router.post('/', function(req, res){
                     delete rows[i].hash_1;
                     delete rows[i].hash_2;
                     delete rows[i].hash_3;
+                    var fileExists = fs.existsSync(__dirname + '/user_profile_image/' + rows[i].userId + '.txt');
+                    if(fileExists){
+                      var fileRead = fs.readFileSync(__dirname + '/user_profile_image/' + rows[i].userId + '.txt', 'utf8');
+                        rows[i].imageSource = fileRead;
+                      }
+                    else{
+                        rows[i].imageSource = null;
+                    }
                     conArr.push(rows[i]);
                 }
-                console.log("[search] 카테고리 및 키워드에 따른 검색 성공" + " [ " + dateFormat(Date(), "yyyy-mm-dd, h:MM:ss TT") + " ] " 
-)
+                console.log("[search] 카테고리 및 키워드에 따른 검색을 요청하였습니다." + " [ " + dateFormat(Date(), "yyyy-mm-dd, h:MM:ss TT") + " ] " )
                 responseData.check = true;
                 responseData.code = 200;
-                responseData.message = '제목, 카테고리, 내용에 따른 검색 완료';
+                responseData.message = '제목, 카테고리, 내용에 따른 검색을 완료되었습니다.';
                 responseData.content = conArr;
                 return res.json(responseData);
             }
         })
     }
     else if(keyword&&!category){
-        var query = connection.query('select * from articlelist where title like ? or text like ? order by timeStamp desc', ['%' + keyword + '%', '%' + keyword + '%'] , function(err, rows){
+        var query = connection.query('select * from articlelist where title like ? or text like ? or hash_1 like ? or hash_2 like ? or hash_3 like ? order by timeStamp desc', ['%' + keyword + '%', '%' + keyword + '%', '%' + keyword + '%', '%' + keyword + '%', '%' + keyword + '%'] , function(err, rows){
             if(err) throw err;
             if(rows){
                 var count = rows.length;
@@ -128,24 +143,30 @@ router.post('/', function(req, res){
                     delete rows[i].hash_1;
                     delete rows[i].hash_2;
                     delete rows[i].hash_3;
+                    var fileExists = fs.existsSync(__dirname + '/user_profile_image/' + rows[i].userId + '.txt');
+                    if(fileExists){
+                      var fileRead = fs.readFileSync(__dirname + '/user_profile_image/' + rows[i].userId + '.txt', 'utf8');
+                        rows[i].imageSource = fileRead;
+                      }
+                    else{
+                        rows[i].imageSource = null;
+                    }
                     conArr.push(rows[i]);
                 }
-                console.log("[search] 키워드에 따른 검색 성공" + " [ " + dateFormat(Date(), "yyyy-mm-dd, h:MM:ss TT") + " ] " 
-)
+                console.log("[search] 키워드에 따른 검색을 요청하였습니다." + " [ " + dateFormat(Date(), "yyyy-mm-dd, h:MM:ss TT") + " ] " )
                 responseData.check = true;
                 responseData.code = 200;
-                responseData.message = '제목, 내용에 따른 검색 완료';
+                responseData.message = '제목, 내용에 따른 검색을 완료되었습니다.';
                 responseData.content = conArr;
                 return res.json(responseData);
             }
         })
     }
     else{
-        console.log("[search] 검색 실패(카테고리, 키워드 미입력)" + " [ " + dateFormat(Date(), "yyyy-mm-dd, h:MM:ss TT") + " ] " 
-)
+        console.log("[search] 카테고리, 키워드를 입력해주세요." + " [ " + dateFormat(Date(), "yyyy-mm-dd, h:MM:ss TT") + " ] " )
         responseData.check = false;
         responseData.code = 301;
-        responseData.message = '검색 실패';
+        responseData.message = '카테고리, 키워드를 입력해주세요.';
         return res.json(responseData);
     }
 });

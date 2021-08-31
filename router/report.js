@@ -17,13 +17,13 @@ var teamsbDB = {
       connection = mysql.createConnection(teamsbDB); 
       connection.connect(function(err) {            
         if(err) {                            
-          console.log('error when connecting to db:', err);
+          console.error('error when connecting to db:' + " [ " + dateFormat(Date(), "yyyy-mm-dd, h:MM:ss TT") + " ] " , err);
           setTimeout(handleDisconnect, 2000); 
         }                                   
       });                                 
                                              
       connection.on('error', function(err) {
-        console.log('db error', err);
+        console.error('db error' + " [ " + dateFormat(Date(), "yyyy-mm-dd, h:MM:ss TT") + " ] " , err);
         if(err.code === 'PROTOCOL_CONNECTION_LOST') { 
           return handleDisconnect();                      
         } else {                                    
@@ -52,11 +52,10 @@ router.post('/', function(req, res){
                     var query = connection.query('select * from reportlist where article_no=? and userId=?',[article_no, curUser],function(err, rows){
                         if(err) throw err;
                         if(rows[0]){
-                            console.log("[report] '" + curUser + "'님 '" + article_no + "'번 글 이미 신고 완료" + " [ " + dateFormat(Date(), "yyyy-mm-dd, h:MM:ss TT") + " ] " 
-)
+                            console.log("[report] [" + curUser + "] 사용자가 [" + article_no + "] 번 글은 이미 신고되었습니다." + " [ " + dateFormat(Date(), "yyyy-mm-dd, h:MM:ss TT") + " ] " )
                             responseData.check = false;
                             responseData.code = 303;
-                            responseData.message = '이미 신고가 완료되었습니다.';
+                            responseData.message = '이미 신고가 완료된 글입니다.';
                             return res.json(responseData);
                         }
                         else{
@@ -65,61 +64,63 @@ router.post('/', function(req, res){
                                 connection.query('update articlelist set reportCount=? where no=?',[count, article_no], function(err, rows){
                                     if(err) throw err;
                                 })
-                                if(count>=5){
-                                    connection.query('select * from articlelist where no=?',[article_no],function(err, rows){
-                                        if(err) throw err;
-                                        if(rows[0]){
-                                            connection.query('insert into articlelist_trash select * from articlelist where no=?',[article_no],function(err, rows){
-                                                if(err) throw err;
-                                            })
-                                            connection.query('delete from articlelist where no=?',[article_no],function(err, rows){
-                                                if(err) throw err;
-                                            })
-                                            console.log("[report] '" + curUser + "'님 '" + article_no + "'번 글 신고 완료 & 게시글 5번 이상 신고되어 처리" + " [ " + dateFormat(Date(), "yyyy-mm-dd, h:MM:ss TT") + " ] " 
-)
-                                            responseData.check = true;
-                                            responseData.code = 200;
-                                            responseData.message = '해당 글의 신고가 완료되었습니다.';
-                                            return res.json(responseData);
-                                        }
-                                        else{
-                                            console.log("[report] '" + curUser + "'님 '" + article_no + "'번 글 신고 완료 & 게시글 5번 이상 신고되어 처리" + " [ " + dateFormat(Date(), "yyyy-mm-dd, h:MM:ss TT") + " ] " 
-)
-                                            responseData.check = true;
-                                            responseData.code = 200;
-                                            responseData.message = '해당 글의 신고가 완료되었습니다.';
-                                            return res.json(responseData);
-                                        }
-                                    })
-                                }
-                                else{
-                                    console.log("[report] '" + curUser + "'님 '" + article_no + "'번 글 신고 완료" + " [ " + dateFormat(Date(), "yyyy-mm-dd, h:MM:ss TT") + " ] " 
-)
-                                    responseData.check = true;
-                                    responseData.code = 200;
-                                    responseData.message = '해당 글의 신고가 완료되었습니다.';
-                                    return res.json(responseData);
-                                }
+                                console.log("[report] [" + curUser + "] 사용자가 [" + article_no + "] 번 글을 신고하였습니다." + " [ " + dateFormat(Date(), "yyyy-mm-dd, h:MM:ss TT") + " ] " )
+                                responseData.check = true;
+                                responseData.code = 200;
+                                responseData.message = '해당 글이 신고되었습니다.';
+                                return res.json(responseData);
+                                // if(count>=5){ <신고 접수 된 게시글 삭제 초치>
+                                //     connection.query('select * from articlelist where no=?',[article_no],function(err, rows){
+                                //         if(err) throw err;
+                                //         if(rows[0]){
+                                //             connection.query('insert into articlelist_trash select * from articlelist where no=?',[article_no],function(err, rows){
+                                //                 if(err) throw err;
+                                //             })
+                                //             connection.query('delete from articlelist where no=?',[article_no],function(err, rows){
+                                //                 if(err) throw err;
+                                //             })
+                                //             console.log("[report] [" + curUser + "] 사용자가 [" + article_no + "] 번 글을 신고하였습니다. 게시글 5번 이상 신고되어 처리합니다." + " [ " + dateFormat(Date(), "yyyy-mm-dd, h:MM:ss TT") + " ] " )
+                                //             responseData.check = true;
+                                //             responseData.code = 200;
+                                //             responseData.message = '해당 글이 신고되었습니다.';
+                                //             return res.json(responseData);
+                                //         }
+                                //         else{
+                                //             console.log("[report] [" + curUser + "] 사용자가 [" + article_no + "] 번 글을 신고하였습니다. 게시글 5번 이상 신고되어 처리합니다." + " [ " + dateFormat(Date(), "yyyy-mm-dd, h:MM:ss TT") + " ] " )
+                                //             responseData.check = true;
+                                //             responseData.code = 200;
+                                //             responseData.message = '해당 글이 신고되었습니다.';
+                                //             return res.json(responseData);
+                                //         }
+                                //     })
+                                // }
+                                // else{
+                                //     console.log("[report] [" + curUser + "] 사용자가 [" + article_no + "] 번 글을 신고하였습니다." + " [ " + dateFormat(Date(), "yyyy-mm-dd, h:MM:ss TT") + " ] " )
+                                //     responseData.check = true;
+                                //     responseData.code = 200;
+                                //     responseData.message = '해당 글이 신고되었습니다.';
+                                //     return res.json(responseData);
+                                // }
                             })
                         }
                     })
                 }
                 else{
-                    console.log("[report] '" + article_no + "'번 글 NOT FOUND" + " [ " + dateFormat(Date(), "yyyy-mm-dd, h:MM:ss TT") + " ] " 
+                    console.log("[report] [" + article_no + "] 번 글을 찾을 수 없습니다." + " [ " + dateFormat(Date(), "yyyy-mm-dd, h:MM:ss TT") + " ] " 
 )
                     responseData.check = false;
                     responseData.code = 302;
-                    responseData.message = '글 no NOT FOUND';
+                    responseData.message = '해당 글을 찾을 수 없습니다.';
                     return res.json(responseData);
                 }
             })
         }
         else{
-            console.log("[report] '" + curUser + "'님 아이디 확인 필요" + " [ " + dateFormat(Date(), "yyyy-mm-dd, h:MM:ss TT") + " ] " 
+            console.log("[report] [" + curUser + "] 아이디를 찾을 수 없습니다." + " [ " + dateFormat(Date(), "yyyy-mm-dd, h:MM:ss TT") + " ] " 
 )
             responseData.check = false;
             responseData.code = 301;
-            responseData.message = '아이디 확인 필요';
+            responseData.message = '아이디를 찾을 수 없습니다.';
             return res.json(responseData);
         }
     })

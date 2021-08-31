@@ -1,6 +1,7 @@
 const express = require('express');
 var router = express.Router();
 var mysql = require('mysql');
+var dateFormat = require('dateformat');
 
 //DATABASE SETTING
 var teamsbDB = {
@@ -16,13 +17,13 @@ function handleDisconnect() {
     connection = mysql.createConnection(teamsbDB); 
     connection.connect(function(err) {            
       if(err) {                            
-        console.log('error when connecting to db:', err);
+        console.error('error when connecting to db:' + " [ " + dateFormat(Date(), "yyyy-mm-dd, h:MM:ss TT") + " ] " , err);
         setTimeout(handleDisconnect, 2000); 
       }                                   
     });                                 
                                            
     connection.on('error', function(err) {
-      console.log('db error', err);
+      console.error('db error' + " [ " + dateFormat(Date(), "yyyy-mm-dd, h:MM:ss TT") + " ] " , err);
       if(err.code === 'PROTOCOL_CONNECTION_LOST') { 
         return handleDisconnect();                      
       } else {                                    
@@ -39,10 +40,10 @@ router.get('/', function(req, res){
 
     var query = connection.query('select * from articlelist_trash order by timeStamp desc', function(err, rows){
                 if(err) throw err;
-                console.log("[articlelist_trash] 신고 접수되어 삭제된 게시물 요청" + " [ " + dateFormat(Date(), "dddd, mmmm dS, yyyy, h:MM:ss TT") + " ] " )
+                console.log("[articlelist_trash] 신고 5회 이상 접수되어 삭제된 게시물입니다." + " [ " + dateFormat(Date(), "dddd, mmmm dS, yyyy, h:MM:ss TT") + " ] " )
                 responseData.check = true;
                 responseData.code = 200;
-                responseData.message = '신고 접수 되어 삭제된 게시물 업로드 완료.';
+                responseData.message = '신고 5회 이상 접수되어 삭제된 게시물입니다.';
                 responseData.content = rows;
                 return res.json(responseData);
             })

@@ -17,13 +17,13 @@ function handleDisconnect() {
     connection = mysql.createConnection(teamsbDB); 
     connection.connect(function(err) {            
       if(err) {                            
-        console.log('error when connecting to db:', err);
+        console.error('error when connecting to db:' + " [ " + dateFormat(Date(), "yyyy-mm-dd, h:MM:ss TT") + " ] " , err);
         setTimeout(handleDisconnect, 2000); 
       }                                   
     });                                 
                                            
     connection.on('error', function(err) {
-      console.log('db error', err);
+      console.error('db error' + " [ " + dateFormat(Date(), "yyyy-mm-dd, h:MM:ss TT") + " ] " , err);
       if(err.code === 'PROTOCOL_CONNECTION_LOST') { 
         return handleDisconnect();                      
       } else {                                    
@@ -46,13 +46,13 @@ router.get('/', function(req, res){
             var query = connection.query('select * from user where id=?',[curUser],function(err, rows){
                 if(rows[0]){
                     if(rows_a[0].userId==curUser){
-                        console.log("[check_replymod] 사용자가 작성한 댓글 확인" + " [ " + dateFormat(Date(), "yyyy-mm-dd, h:MM:ss TT") + " ] " )
+                        console.log("[check_replymod] [" + curUser + "] 사용자가 작성한 댓글이 맞습니다." + " [ " + dateFormat(Date(), "yyyy-mm-dd, h:MM:ss TT") + " ] " )
                         responseData.check = true;
                         responseData.code = 200;
                         responseData.message = '사용자가 작성한 댓글이 맞습니다.';
                         return res.json(responseData);
                     } else {
-                      console.log("[check_replymod] 사용자가 작성한 댓글 확인X" + " [ " + dateFormat(Date(), "yyyy-mm-dd, h:MM:ss TT") + " ] " )
+                      console.log("[check_replymod] [" + curUser + "] 사용자가 작성한 댓글이 아닙니다." + " [ " + dateFormat(Date(), "yyyy-mm-dd, h:MM:ss TT") + " ] " )
                         responseData.check = false;
                         responseData.code = 303;
                         responseData.message = '사용자가 작성한 댓글이 아닙니다.';
@@ -60,19 +60,19 @@ router.get('/', function(req, res){
                     }
                 }
                 else{
-                  console.log("[check_replymod] 아이디 NOT FOUND" + " [ " + dateFormat(Date(), "yyyy-mm-dd, h:MM:ss TT") + " ] " )
+                  console.log("[check_replymod] [" + curUser + "] 아이디를 찾을 수 없습니다." + " [ " + dateFormat(Date(), "yyyy-mm-dd, h:MM:ss TT") + " ] " )
                     responseData.check = false;
                     responseData.code = 301;
-                    responseData.message = '아이디가 일치하지 않습니다.';
+                    responseData.message = '아이디를 찾을 수 없습니다.';
                     return res.json(responseData);
                 }
             })
         }
         else{
-          console.log("[check_replymod] 댓글 NOT FOUND" + " [ " + dateFormat(Date(), "yyyy-mm-dd, h:MM:ss TT") + " ] " )
+          console.log("[check_replymod] " + reply_no + " 해당 댓글을 찾을 수 없습니다. [ " + dateFormat(Date(), "yyyy-mm-dd, h:MM:ss TT") + " ] " )
             responseData.check = false;
             responseData.code = 302;
-            responseData.message = '해당 댓글이 존재하지 않습니다.';
+            responseData.message = '해당 댓글을 찾을 수 없습니다.';
             return res.json(responseData);
         }
         

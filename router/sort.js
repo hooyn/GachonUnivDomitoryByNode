@@ -17,13 +17,13 @@ var teamsbDB = {
       connection = mysql.createConnection(teamsbDB); 
       connection.connect(function(err) {            
         if(err) {                            
-          console.log('error when connecting to db:', err);
+          console.error('error when connecting to db:', err);
           setTimeout(handleDisconnect, 2000); 
         }                                   
       });                                 
                                              
       connection.on('error', function(err) {
-        console.log('db error', err);
+        console.error('db error', err);
         if(err.code === 'PROTOCOL_CONNECTION_LOST') { 
           return handleDisconnect();                      
         } else {                                    
@@ -54,6 +54,30 @@ router.post('/articlelist', function(req, res){
             responseData.check = true;
             responseData.code = 200;
             responseData.message = '글의 고유 아이디 번호가 정렬되었습니다.';
+            return res.json(responseData);
+        })
+    })
+});
+router.post('/articlelist_trash', function(req, res){
+    var responseData = {};
+    var count;
+    connection.query('ALTER TABLE articlelist_trash AUTO_INCREMENT=1;', function(err, rows){
+        if(err) throw err;
+    })
+    connection.query('SET @COUNT = 0;', function(err, rows){
+        if(err) throw err;
+    })
+    connection.query('UPDATE articlelist_trash SET no = @COUNT:=@COUNT+1;', function(err, rows){
+        if(err) throw err;
+    })
+    connection.query('select no from articlelist_trash;', function(err, rows){
+        if(err) throw err;
+        count=rows.length;
+        connection.query('ALTER TABLE articlelist_trash AUTO_INCREMENT=?', [count], function(err, rows){
+            if(err) throw err;
+            responseData.check = true;
+            responseData.code = 200;
+            responseData.message = '글 휴지통의 고유 아이디 번호가 정렬되었습니다.';
             return res.json(responseData);
         })
     })
@@ -127,6 +151,103 @@ router.post('/reportlist', function(req, res){
         })
     })
 });
+
+router.post('/notificationlist', function(req, res){
+    var responseData = {};
+    connection.query('ALTER TABLE notificationlist  AUTO_INCREMENT=1;', function(err, rows){
+        if(err) throw err;
+    })
+    connection.query('SET @COUNT = 0;', function(err, rows){
+        if(err) throw err;
+    })
+    connection.query('UPDATE notificationlist SET notification_no = @COUNT:=@COUNT+1;', function(err, rows){
+        if(err) throw err;
+        })
+    connection.query('select notification_no from notificationlist;', function(err, rows){
+        if(err) throw err;
+        count=rows.length;
+        connection.query('ALTER TABLE notificationlist AUTO_INCREMENT=?', [count], function(err, rows){
+            if(err) throw err;
+            responseData.check = true;
+            responseData.code = 200;
+            responseData.message = '알림내역 고유 번호가 정렬되었습니다.';
+            return res.json(responseData);
+        })
+    })
+});
+
+router.post('/noticelist', function(req, res){
+    var responseData = {};
+    connection.query('ALTER TABLE noticelist  AUTO_INCREMENT=1;', function(err, rows){
+        if(err) throw err;
+    })
+    connection.query('SET @COUNT = 0;', function(err, rows){
+        if(err) throw err;
+    })
+    connection.query('UPDATE noticelist SET notice_no = @COUNT:=@COUNT+1;', function(err, rows){
+        if(err) throw err;
+        })
+    connection.query('select notice_no from noticelist;', function(err, rows){
+        if(err) throw err;
+        count=rows.length;
+        connection.query('ALTER TABLE noticelist AUTO_INCREMENT=?', [count], function(err, rows){
+            if(err) throw err;
+            responseData.check = true;
+            responseData.code = 200;
+            responseData.message = '공지사항 내역 고유 번호가 정렬되었습니다.';
+            return res.json(responseData);
+        })
+    })
+});
+
+router.post('/feedbacklist', function(req, res){
+    var responseData = {};
+    connection.query('ALTER TABLE feedbacklist  AUTO_INCREMENT=1;', function(err, rows){
+        if(err) throw err;
+    })
+    connection.query('SET @COUNT = 0;', function(err, rows){
+        if(err) throw err;
+    })
+    connection.query('UPDATE feedbacklist SET feedback_no = @COUNT:=@COUNT+1;', function(err, rows){
+        if(err) throw err;
+        })
+    connection.query('select feedback_no from feedbacklist;', function(err, rows){
+        if(err) throw err;
+        count=rows.length;
+        connection.query('ALTER TABLE feedbacklist AUTO_INCREMENT=?', [count], function(err, rows){
+            if(err) throw err;
+            responseData.check = true;
+            responseData.code = 200;
+            responseData.message = '피드백 내역 고유 번호가 정렬되었습니다.';
+            return res.json(responseData);
+        })
+    })
+});
+
+router.post('/guidelist', function(req, res){
+    var responseData = {};
+    connection.query('ALTER TABLE guidelist  AUTO_INCREMENT=1;', function(err, rows){
+        if(err) throw err;
+    })
+    connection.query('SET @COUNT = 0;', function(err, rows){
+        if(err) throw err;
+    })
+    connection.query('UPDATE guidelist SET guide_no = @COUNT:=@COUNT+1;', function(err, rows){
+        if(err) throw err;
+        })
+    connection.query('select guide_no from guidelist;', function(err, rows){
+        if(err) throw err;
+        count=rows.length;
+        connection.query('ALTER TABLE guidelist AUTO_INCREMENT=?', [count], function(err, rows){
+            if(err) throw err;
+            responseData.check = true;
+            responseData.code = 200;
+            responseData.message = '이용 가이드 내역 고유 번호가 정렬되었습니다.';
+            return res.json(responseData);
+        })
+    })
+});
+
 
 
 

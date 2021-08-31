@@ -17,13 +17,13 @@ function handleDisconnect() {
     connection = mysql.createConnection(teamsbDB); 
     connection.connect(function(err) {            
       if(err) {                            
-        console.log('error when connecting to db:', err);
+        console.error('error when connecting to db:' + " [ " + dateFormat(Date(), "yyyy-mm-dd, h:MM:ss TT") + " ] " , err);
         setTimeout(handleDisconnect, 2000); 
       }                                   
     });                                 
                                            
     connection.on('error', function(err) {
-      console.log('db error', err);
+      console.error('db error' + " [ " + dateFormat(Date(), "yyyy-mm-dd, h:MM:ss TT") + " ] " , err);
       if(err.code === 'PROTOCOL_CONNECTION_LOST') { 
         return handleDisconnect();                      
       } else {                                    
@@ -54,17 +54,20 @@ router.post('/', function(req, res){
       connection.query('delete from articlelist where timeStamp like ?',[date_seven_ago + "%"],function(err,rows){
         if(err) throw err;
       })
-      console.log("[cleanArticle] 7일 지난 게시글 및 관련 댓글 신고내역 삭제 완료" + " [ " + dateFormat(Date(), "yyyy-mm-dd, h:MM:ss TT") + " ] " )
+      connection.query('delete from notificationlist where timeStamp like ?',[date_seven_ago + "%"],function(err,rows){
+        if(err) throw err;
+      })
+      console.log("[cleanArticle] 7일 지난 게시글 및 관련 댓글 신고내역이 삭제되었습니다." + " [ " + dateFormat(Date(), "yyyy-mm-dd, h:MM:ss TT") + " ] " )
       responseData.check = true;
       responseData.code = 200;
-      responseData.message = '7일 지난 게시글 및 관련 댓글 신고내역 삭제 완료';
+      responseData.message = '7일 지난 게시글 및 관련 댓글 신고내역이 삭제되었습니다.';
       return res.json(responseData);  
     }
     else{
-      console.log("[cleanArticle] 7일 지난 게시글 NOT FOUND" + " [ " + dateFormat(Date(), "yyyy-mm-dd, h:MM:ss TT") + " ] " )
+      console.log("[cleanArticle] 7일 지난 게시글을 찾을 수 없습니다." + " [ " + dateFormat(Date(), "yyyy-mm-dd, h:MM:ss TT") + " ] " )
       responseData.check = true;
-      responseData.code = 201;
-      responseData.message = '7일 지난 게시글 NOT FOUND';
+      responseData.code = 200;
+      responseData.message = '7일 지난 게시글을 찾을 수 없습니다.';
       return res.json(responseData);  
     }
   })
