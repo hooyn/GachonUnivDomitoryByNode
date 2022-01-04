@@ -8,11 +8,11 @@ const { response } = require('express');
 
 //DATABASE SETTING
 var teamsbDB = {
-  host : '13.209.10.30',
+  host : '**',
   port : 3306,
   user : 'root',
-  password : 'owner9809~',
-  database : 'teamsb',
+  password : '**',
+  database : '**',
   dateStrings : 'date'
 };
 var connection
