@@ -6,12 +6,12 @@ var fs = require('fs');
 
 //DATABASE SETTING
 var teamsbDB = {
-  host : '13.209.10.30',
-  port : 3306,
-  user : 'root',
-  password : 'owner9809~',
-  database : 'teamsb',
-  dateStrings : 'date'
+    host : **',
+    port : 3306,
+    user : 'root',
+    password : '**',
+    database : '**',
+    dateStrings : 'date'
 };
 var connection
 function handleDisconnect() {
