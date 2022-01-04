@@ -35,7 +35,7 @@ app.use(flash());
 app.use(router);
 
 //SDK initialize
-let serAccount = require('./key/teamsb-68280-firebase-adminsdk-n930z-2636739ff1.json') //fcm 서버 키
+let serAccount = require('**') //fcm 서버 키
 admin.initializeApp({
 credential: admin.credential.cert(serAccount),
 })
